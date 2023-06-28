@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from sklearn import preprocessing
 
 from DataEmbedding import DataEmbedding
 from Encoder import Encoder
@@ -9,7 +10,13 @@ from PositionalEmbedding import PositionalEmbedding
 from TokenEmbedding import TokenEmbedding
 from Transformer import Transformer
 
+def normalize_data(data):
+  normalized_data = np.empty_like(data)
 
+  # iterate through batch elements
+  for i, z in enumerate(data):
+    normalized_data[i] = norm = preprocessing.normalize(z, axis=1)
+  return normalized_data
 
 def make_prediction(data, model):
     """
@@ -54,10 +61,15 @@ def main():
     path = 'torch_load_model.pth'
     model = torch.load(path)
     model.eval()
-    
+
+    # remember to change the samples depending on the model !! (14 or 96)
     processed_data = prepare_data_format(path='testing_data.txt')
+    # normalization of data
+    processed_data = normalize_data(processed_data)
     
     predictions = make_prediction(processed_data, model)
+    
+    
     print(predictions)
 
     print("predictions complete")
